@@ -14,12 +14,14 @@ import {
 import { configureChains, mainnet, createConfig, WagmiConfig } from "wagmi";
 import { alchemyProvider } from "wagmi/providers/alchemy";
 import { publicProvider } from "wagmi/providers/public";
+import { ChakraProvider } from "@chakra-ui/react";
+import { env } from "@/shared/environment";
 
 const { chains, publicClient } = configureChains(
   [mainnet, polygon, optimism, arbitrum, base, zora, goerli, sepolia],
   [
     alchemyProvider({
-      apiKey: process.env.ALCHEMY_ID,
+      apiKey: env.alchemyKey,
     }),
     publicProvider(),
   ]
@@ -39,7 +41,9 @@ export default function App({ Component, pageProps }: AppProps) {
   return (
     <WagmiConfig config={wagmiConfig}>
       <RainbowKitProvider chains={chains}>
-        <Component {...pageProps} />;
+        <ChakraProvider>
+          <Component {...pageProps} />;
+        </ChakraProvider>
       </RainbowKitProvider>
     </WagmiConfig>
   );
