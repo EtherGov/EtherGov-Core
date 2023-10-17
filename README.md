@@ -1,2 +1,2 @@
-# SNZ-DAO-Tool-Core
-SNZ-DAO-Tool-Core
+# EtherGov-Core
+Core for EtherGov
