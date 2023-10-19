@@ -62,7 +62,7 @@ contract Governance {
     event Unstaked(address indexed user, uint256 amount);
 
     modifier onlyCouncil() {
-        require(!isCouncil[msg.sender], "Only councils can call this function");
+        require(isCouncil[msg.sender], "Only councils can call this function");
         _;
     }
 
