@@ -181,6 +181,14 @@ contract Governance {
         Proposal storage proposal = resources.proposals[proposalId];
         require(!proposal.executed, "Proposal has already been executed.");
         require(!proposal.ended, "Proposal has already ended.");
+        require(proposal.votes >= proposal.votesNeeded, "Not enough votes.");
+        require(proposal.duration <= block.timestamp, "Proposal has not ended.");
+        require(
+            proposal.proposedAddress == msg.sender,
+            "Only Council can execute proposal.");
+        require(
+            proposal.nftAddress != address(0),
+            "No NFT locked for this proposal.");
 
         _setProposalToExecuted(proposal);
 
