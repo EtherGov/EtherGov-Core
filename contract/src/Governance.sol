@@ -127,10 +127,11 @@ contract Governance {
 
     function stakeAndVote(
         uint256 proposalId,
-        uint256 stakeAmount,
+        // uint256 stakeAmount,
         uint256 tokenId
     ) external {
-        resources.stakingContract.stake(stakeAmount);
+        // resources.stakingContract.stake(stakeAmount);
+
         // Get the proposal
         Proposal storage proposal = resources.proposals[proposalId];
 
