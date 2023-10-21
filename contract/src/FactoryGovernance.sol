@@ -2,27 +2,34 @@
 pragma solidity ^0.8.20;
 
 import "./Governance.sol";
+import "./NFTLock.sol";
+import "./StakeERC20.sol";
 
 contract GovernanceFactory {
     Governance[] public governances;
+    NFTLock[] public nftLocks;
+    ERC20Staking[] public stakingContracts;
     mapping(address => string) public governanceNames;
 
     event GovernanceCreated(address governance, string name);
 
     function createGovernance(
         string memory name, // New parameter for the governance name
-        uint256 _minimumVotes,
         address _mailboxAddress,
-        address _gasPaymaster,
-        IERC20 _stakingToken,
-        address[] memory _council
+        address _paymaster,
+        address[] memory _council,
+        address _stakingToken
     ) public returns (Governance) {
+        NFTLock lock = new NFTLock(); // Deploy an instance of the NFTLock
+        nftLocks.push(lock);
+        ERC20Staking stakingContract = new ERC20Staking(_stakingToken); // Deploy an instance of the ERC20Staking
+        stakingContracts.push(stakingContract); // Set the staking token to the NFTLock
         Governance governance = new Governance(
-            _minimumVotes,
             _mailboxAddress,
-            _gasPaymaster,
-            _stakingToken,
-            _council
+            _paymaster,
+            _council,
+            address(lock),
+            address(stakingContract)
         );
         governances.push(governance);
         governanceNames[address(governance)] = name; // Storing the name
