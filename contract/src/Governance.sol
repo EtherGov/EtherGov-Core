@@ -21,6 +21,7 @@ contract Governance {
         uint256 votes;
         bytes messageBody;
         LockedNFT lockedNFT;
+        string groupId;
         bool executed;
         bool ended;
         uint256 duration;
@@ -35,12 +36,12 @@ contract Governance {
         uint256 duration;
         uint16 voteNeeded;
         LockedNFT lockedNFT;
+        string groupId;
         bytes messageBody;
     }
 
     struct LockedNFT {
         address nftAddress;
-        uint256 nftTokenId;
     }
 
     struct GovernanceResources {
@@ -119,6 +120,7 @@ contract Governance {
                 votes: 0,
                 messageBody: input.messageBody,
                 lockedNFT: input.lockedNFT,
+                groupId: input.groupId,
                 executed: false,
                 ended: false,
                 duration: input.duration
@@ -127,13 +129,17 @@ contract Governance {
         emit ProposalCreated(resources.proposals.length - 1);
     }
 
-    function stakeAndVote(uint256 proposalId, uint256 stakeAmount) external {
+    function stakeAndVote(
+        uint256 proposalId,
+        uint256 stakeAmount,
+        uint256 tokenId
+    ) external {
         resources.stakingContract.stake(stakeAmount);
         // Get the proposal
         Proposal storage proposal = resources.proposals[proposalId];
 
         // Lock the NFT
-        lockProposalNFT(proposal, proposalId);
+        lockProposalNFT(proposal, proposalId, tokenId);
 
         // Check requirements and cast vote
         castVote(proposal, proposalId);
@@ -141,12 +147,13 @@ contract Governance {
 
     function lockProposalNFT(
         Proposal storage proposal,
-        uint256 proposalId
+        uint256 proposalId,
+        uint256 tokenId
     ) internal {
         resources.nftLock.lockNFT(
             proposalId,
             proposal.lockedNFT.nftAddress,
-            proposal.lockedNFT.nftTokenId
+            tokenId
         );
     }
 

@@ -2,6 +2,7 @@
 pragma solidity ^0.8.20;
 
 import "./Enum.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 interface GnosisSafe {
     /// @dev Allows a Module to execute a Safe transaction without any further confirmations.
@@ -36,11 +37,11 @@ contract Module is IMessageRecipient {
     address public immutable account;
     uint16 public targetChained;
 
-    // GnosisSafe public immutable gnosisSafe;
+    GnosisSafe public immutable gnosisSafe;
 
-    constructor(address _account) {
+    constructor(address _account, address _gnosisSafe) {
         account = _account;
-        // gnosisSafe = GnosisSafe(_gnosisSafe);
+        gnosisSafe = GnosisSafe(_gnosisSafe);
     }
 
     function handle(
@@ -49,23 +50,29 @@ contract Module is IMessageRecipient {
         bytes calldata _body
     ) external virtual override {
         emit Received(_origin, address(bytes20(_sender)), _body);
-        uint16 targetChain = abi.decode(_body, (uint16));
-        targetChained = targetChain;
-        // if (
-        //     keccak256(abi.encodePacked(transactionType)) == keccak256("DEPOSIT")
-        // ) {
-        // Handle the deposit logic here
-        // gnosisSafe.execTransactionFromModule(
-        //     tokenAddressSource,
-        //     sourceValue,
-        //     abi.encodeWithSignature(
-        //         "transferFrom(address,address,uint256)",
-        //         targetAddress, // This might be a bridge contract address
-        //         sourceValue
-        //     ),
-        //     Enum.Operation.Call
-        // );
+        (
+            uint256 targetChain,
+            address tokenAddressSource,
+            uint256 sourceValue,
+            string memory payloadFunction,
+            string memory transactionType,
+            address from,
+            address to
+        ) = abi.decode(
+                _body,
+                (uint256, address, uint256, string, string, address, address)
+            );
 
-        // }
+        gnosisSafe.execTransactionFromModule(
+            tokenAddressSource,
+            sourceValue,
+            abi.encodeWithSignature(
+                "transferFrom(address,address,uint256)",
+                from, // This might be a bridge contract address
+                to,
+                sourceValue
+            ),
+            Enum.Operation.Call
+        );
     }
 }
