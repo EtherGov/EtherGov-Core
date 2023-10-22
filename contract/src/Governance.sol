@@ -24,7 +24,7 @@ contract Governance {
         string groupId;
         bool executed;
         bool ended;
-        uint256 duration;
+        uint256 endDate;
     }
 
     struct ProposalInput {
@@ -33,7 +33,7 @@ contract Governance {
         address targetAddress;
         address tokenAddressSource;
         uint256 sourceValue;
-        uint256 duration;
+        uint256 endDate;
         uint16 voteNeeded;
         address nftAddress;
         string groupId;
@@ -95,10 +95,9 @@ contract Governance {
     }
 
     modifier validateInput(ProposalInput memory input) {
-        require(input.voteNeeded >= 10, "Vote needed too low");
+        require(input.voteNeeded >= 1, "Vote needed too low");
         require(input.voteNeeded <= 100, "Vote needed too high");
-        require(input.duration >= 10 minutes, "Duration too short");
-        require(input.duration <= 30 days, "Duration too long");
+        require(input.endDate >= block.timestamp, "Duration too short");
         _;
     }
 
@@ -119,7 +118,7 @@ contract Governance {
                 groupId: input.groupId,
                 executed: false,
                 ended: false,
-                duration: input.duration
+                endDate: input.endDate
             })
         );
         emit ProposalCreated(resources.proposals.length - 1);
@@ -183,13 +182,15 @@ contract Governance {
         require(!proposal.executed, "Proposal has already been executed.");
         require(!proposal.ended, "Proposal has already ended.");
         require(proposal.votes >= proposal.votesNeeded, "Not enough votes.");
-        require(proposal.duration <= block.timestamp, "Proposal has not ended.");
+        require(proposal.endDate <= block.timestamp, "Proposal has not ended.");
         require(
             proposal.proposedAddress == msg.sender,
-            "Only Council can execute proposal.");
+            "Only Council can execute proposal."
+        );
         require(
             proposal.nftAddress != address(0),
-            "No NFT locked for this proposal.");
+            "No NFT locked for this proposal."
+        );
 
         _setProposalToExecuted(proposal);
 

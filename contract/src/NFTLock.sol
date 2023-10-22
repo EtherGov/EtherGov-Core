@@ -1,8 +1,10 @@
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+import "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
 
-contract NFTLock {
+contract NFTLock is IERC721Receiver {
     struct LockedNFT {
         address nftAddress;
         uint256 nftTokenId;
@@ -52,6 +54,15 @@ contract NFTLock {
         );
         delete lockedNFTs[proposalId][msg.sender];
         emit NFTReleased(proposalId, msg.sender);
+    }
+
+    function onERC721Received(
+        address operator,
+        address from,
+        uint256 tokenId,
+        bytes calldata data
+    ) external override returns (bytes4) {
+        return this.onERC721Received.selector;
     }
 
     function setGovernanceReference(
