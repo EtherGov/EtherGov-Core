@@ -44,7 +44,6 @@ contract Governance {
         IMailbox mailbox;
         IInterchainGasPaymaster paymaster;
         NFTLock nftLock;
-        ERC20Staking stakingContract;
         address[] council;
         Proposal[] proposals;
     }
@@ -71,14 +70,12 @@ contract Governance {
         address _mailboxAddress,
         address _paymaster,
         address[] memory _council,
-        address _nftLock,
-        address _stakingContract
+        address _nftLock
     ) {
         resources.mailbox = IMailbox(_mailboxAddress);
         resources.paymaster = IInterchainGasPaymaster(_paymaster);
         setCouncil(_council);
         resources.nftLock = NFTLock(_nftLock);
-        resources.stakingContract = ERC20Staking(_stakingContract);
     }
 
     function setCouncil(address[] memory _council) private {
@@ -221,5 +218,14 @@ contract Governance {
 
     function returnAllCouncil() public view returns (address[] memory) {
         return resources.council;
+    }
+
+    function getGovernanceAndNFTLockAddresses()
+        public
+        view
+        returns (address governanceAddr, address nftLockAddr)
+    {
+        governanceAddr = address(this); // The current Governance contract address
+        nftLockAddr = address(resources.nftLock); // The corresponding NFTLock address
     }
 }
